@@ -1,12 +1,46 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { throwError } from 'rxjs';
+import { UUID } from 'crypto';
 
-@Controller()
+@Controller('user')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private appService: AppService) {}
+
 
   @Get('/:id')
-  getHello(@Param('id') id: string): string {
-    return 'the id is' + id; //this.appService.getHello()
+  fetchUser(@Param('id') id: string) {
+    //if an id is provided - will return only that user
+    //if nothing 
+    return this.appService.fetchUser(id);
+  }
+
+  @Get()
+  fetchUsers(): string {
+    return 'bum;'
+  }
+
+  @Delete('/:id')
+  deleteUser(@Param('id') id: string): void {
+    //check ID exists - NotFoundException
+    //check if user has already been deleted - ForbiddenException
+    
+  }
+
+
+  @Post()
+  createNewUser(): void {
+  }
+
+
+  @Patch('/:id')
+  updateUser(@Param('id') id: string): void {
+    
+  }
+
+
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
   }
 }
