@@ -27,6 +27,18 @@ export class AppService {
     ]
   }
 
+  deleteUser(id: string): void {
+
+  }
+
+
+  updateUser(id: string, name: string, status: string, role: string, email: string): void {
+
+  }
+
+  addUser(name: string, email: string, status: string, role: string,): void {
+
+  }
 
 
   getHello(): string {

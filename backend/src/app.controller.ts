@@ -17,7 +17,7 @@ export class AppController {
 
   @Get()
   fetchUsers(): string {
-    return 'bum;'
+    return 'hello';
   }
 
   @Delete('/:id')
