@@ -18,8 +18,8 @@ model Users {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name String
   email String @unique
-  role Role @default(USER)
-  status Status @default(ACTIVE)
+  role Role?
+  status Status 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
   deletedAt DateTime?
