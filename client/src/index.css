@@ -19,13 +19,15 @@ h1 {
   /*background-color: antiquewhite;*/
   height: 5rem;
   text-align: center;
+  margin-top: 60px;
 }
 
 h2 {
   font-size: 2em;
   text-align: center;
   color: #974315db;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
+  margin-top: 0%;
 }
 
 hr {
@@ -44,12 +46,10 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: antiquewhite;
+  border-color: #974315db;
+  border-width: 2.5px;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+
 
 @media (prefers-color-scheme: light) {
   :root {
