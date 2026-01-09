@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { UUID } from 'crypto';
 
 @Injectable()
@@ -42,6 +42,6 @@ export class AppService {
 
 
   getHello(): string {
-    return 'Hello Annie!';
+    throw new HttpException("helloooooooooo", 404);
   }
 }
