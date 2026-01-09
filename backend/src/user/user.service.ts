@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { Prisma } from 'generated/prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
+import { filterUserDTO } from '../filterUserDTO'
 
 const ERROR_MESSAGE = {
   repeatedEmail: "This email has already been taken",
@@ -11,6 +12,7 @@ const ERROR_MESSAGE = {
   invalidDate: "Date is not in a valid format",
   userNotFound: "User with this ID not found",
   invalidName: "Name is not between 2 and 100 characters",
+  invalidDates: 
 
 
 }
@@ -46,7 +48,7 @@ export class UserService {
 
     //see if the email already exists in the database
     try {
-      return await this.databaseService.users.create({ data: createUserDto});
+      return await this.databaseService.users.create({ data: createUserDto });
     } catch (e: unknown) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         throw new HttpException(ERROR_MESSAGE.repeatedEmail, ERROR_CODE.repeatedEmail);
@@ -54,14 +56,27 @@ export class UserService {
     }
   }
 
-  async findAll(filter: Prisma.UsersWhereInput) {
+  async findAll(filters: filterUserDTO) {
+    const where =  { deletedAt: null };
 
-    
+    if (!filters) {
+      return where;
+    }
 
-    
-    return this.databaseService.users.findMany({ 
-      where: filter
-     });
+    // if ((!filters.startDate && filters.endDate) || (filters.startDate && !filters.endDate)) {
+    //   throw new HttpException(dateErrorMessage, 400);
+    // }
+
+    // if (filters.name) {
+    //   where.name: {
+
+    //   }
+    // }
+
+
+    return this.databaseService.users.findMany({
+      where
+    });
   }
 
 
@@ -72,12 +87,15 @@ export class UserService {
    * @returns 
    */
   async findOne(id: UUID) {
+
+
     let user = await this.databaseService.users.findUnique({
       where: {
         id: id,
+        deletedAt: null,
       }
     });
-    
+
     //checking if a user was found 
     if (!user) {
       throw new HttpException(ERROR_MESSAGE.userNotFound, 404);
@@ -109,7 +127,7 @@ export class UserService {
       deletedAt: new Date()
     }
 
-    return await this.findUser(() => this.databaseService.users.update( {
+    return await this.findUser(() => this.databaseService.users.update({
       where: {
         id: id,
       },
@@ -123,8 +141,8 @@ export class UserService {
     const revive: Prisma.UsersUpdateInput = {
       deletedAt: null
     }
-    
-    return await this.findUser(() => this.databaseService.users.update( {
+
+    return await this.findUser(() => this.databaseService.users.update({
       where: {
         id: id,
       },
@@ -143,6 +161,7 @@ export class UserService {
     try {
       return await fn();
     } catch (e: unknown) {
+
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         throw new HttpException(ERROR_MESSAGE.userNotFound, ERROR_CODE.userNotFound);
       } else {
@@ -158,6 +177,6 @@ export class UserService {
   }
 
   private validateName(name: string): boolean {
-    return !(name.length < 2 || name.length > 100); 
+    return !(name.length < 2 || name.length > 100);
   }
 }

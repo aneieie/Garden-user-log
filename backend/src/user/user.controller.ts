@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, BadRequestException, HttpException, } from '@nestjs/common';
 import { UserService } from './user.service';
+import { filterUserDTO } from '../filterUserDTO'
 import { Prisma, Status } from  '../../generated/prisma/client';
 import type { UUID } from 'crypto';
 
@@ -15,29 +16,13 @@ export class UserController {
   }
 
   @Get()
-  findAll(
-  @Query('name') name: string, 
-  @Query('startDate') from: Date, 
-  @Query('endDate') to: Date, 
-  @Query('status') status: Status) {
+  async findAll(@Body() filters: filterUserDTO) {
 
-    if ((from === undefined && to != undefined) || (from != undefined && to === undefined)) {
-      throw new HttpException(dateErrorMessage, 400);
-    }
-
-    const filter: Prisma.UsersWhereInput = {  //https/server/user/?id=2
-        createdAt: {
-          gte: from,
-          lte: to,
-        },
-        name: {
-          contains: name,
-        },
-        status: status,
-      }
-
+    // if ((!filters.startDate && filters.endDate) || (filters.startDate && !filters.endDate)) {
+    //   throw new HttpException(dateErrorMessage, 400);
+    // }
       //if from provided but not to -> throw error
-    return this.userService.findAll(filter);
+    return await this.userService.findAll(filters);
   }
 
   @Get(':id')
