@@ -1,9 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { UUID } from 'crypto';
 
 @Injectable()
 export class AppService {
-
   fetchUser(id: string) {
     return {
       id: id,
@@ -12,36 +10,38 @@ export class AppService {
       status: 'ACCEPTED',
       role: 'POO',
       created: '06/01/26',
-      updated: '07/01/26'
-    }
+      updated: '07/01/26',
+    };
   }
 
   fetchUsers() {
-    return [
-      {
-
-      },
-      {
-
-      }
-    ]
+    return [{}, {}];
   }
 
   deleteUser(id: string): void {
-
+    console.log(id);
   }
 
-
-  updateUser(id: string, name: string, status: string, role: string, email: string): void {
-
+  updateUser(data: {
+    id: string;
+    name: string;
+    status: string;
+    role: string;
+    email: string;
+  }): void {
+    console.log(data);
   }
 
-  addUser(name: string, email: string, status: string, role: string,): void {
-
+  addUser(data: {
+    name: string;
+    email: string;
+    status: string;
+    role: string;
+  }): void {
+    console.log(data);
   }
-
 
   getHello(): string {
-    throw new HttpException("helloooooooooo", 404);
+    throw new HttpException('helloooooooooo', 404);
   }
 }

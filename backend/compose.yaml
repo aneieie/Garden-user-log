@@ -1,15 +1,17 @@
 services:
-  db:
-    image: postgres:18-alpine
-    restart: always
+  postgres:
+    image: postgres:17-alpine
+    container_name: user-management-app
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: annieandgina
-      POSTGRES_DB: mydatabase
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DB_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: "${DB_POSTGRES_PASSWORD}"
+      POSTGRES_DB: ${DB_POSTGRES_DATABASE}
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - ${DB_POSTGRES_PORT}:5432
 
 volumes:
-  db_data:
+  postgres_data:
+    driver: local
