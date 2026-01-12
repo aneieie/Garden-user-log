@@ -3,38 +3,11 @@ import './App.css'
 import Table from './Table';
 import FlipPage from './FlipPage';
 import FilterPop from './FilterPop';
+import ValidateUser from './ValidateUser';
+import GetUsers from './GetUsers';
 
-export const Filter = {
-  page: 0,
-  limit: 10,
-  name: "",
-  startDate: "",
-  endDate: "",
-  status: "",
-}
 
-export const UserList = [
-  {
-    id: "1",
-    name: "Ginarr",
-    email: "ginahale10@email.com",
-    status: "ACTIVE",
-    role: "Duck",
-    createdAt: "06/01/26",
-    updatedAt: "07/01/26",
-    deletedAt: "",
-  }, 
-  {
-    id: "2",
-    name: "Johnny",
-    email: "johncapybara@email.com",
-    status: "SUSPENDED",
-    role: "Capybara",
-    createdAt: "07/01/26",
-    updatedAt: "07/01/26",
-    deletedAt: "",
-  }
-]
+const URL = "http://localhost:3000/user";
 
 
 function Website() {
@@ -53,39 +26,51 @@ function Website() {
   const [errorMsg, setErrorMsg] = useState("");
   const [userIndex, setUserIndex] = useState(0);
   const [filter, setFilter] = useState(false);
+  const [filterInfo, setFilterInfo] = useState({
+    name: "",
+    startDate: "",
+    endDate: "",
+    status: "",
+    page: 0,
+    limit: 10,
+  });
+  
+  const [userList, setUserList] = useState([]);
 
   return (
     <>
-      <Search />
+      <Search filterInfo={filterInfo} setFilterInfo={setFilterInfo} setUserList={setUserList} />
       <h1>Garden users log</h1>
         <ButtonBar setOpen={setOpen} setUser={setUser} setErrorMsg={setErrorMsg} setFilter={setFilter} />
-        {filter && <FilterPop />}
-        <Table setUpdate={setUpdate} setUser={setUser} setErrorMsg={setErrorMsg} setUserIndex={setUserIndex} />
+        {filter && <FilterPop setFilterInfo={setFilterInfo} filterInfo={filterInfo} 
+        setUserList={setUserList} />}
+        <Table setUpdate={setUpdate} setUser={setUser} setErrorMsg={setErrorMsg} 
+        setUserIndex={setUserIndex} userList={userList}/>
         {open && <AddUser setOpen={setOpen} user={user} setUser={setUser} setErrorMsg={setErrorMsg} errorMsg={errorMsg} 
-        setUpdate={setUpdate} userIndex={userIndex} />}
+        setUpdate={setUpdate} userIndex={userIndex} filterInfo={filterInfo} setUserList={setUserList} />}
         {update && <UpdateUser setUpdate={setUpdate} user={user} setUser={setUser} setOpen={setOpen}
-        setErrorMsg={setErrorMsg} errorMsg={errorMsg} userIndex={userIndex} />}
-        <FlipPage />
+        setErrorMsg={setErrorMsg} errorMsg={errorMsg} userIndex={userIndex} filterInfo={filterInfo} setUserList={setUserList} />}
+        <FlipPage filterInfo={filterInfo} setFilterInfo={setFilterInfo} setUserList={setUserList} />
     </>
   )
 }
 
 
 
-function Search () {
-  const [username, setUsername] = useState("");
+function Search ({filterInfo, setFilterInfo, setUserList}) {
 
+  async function handleSearch () {
+    /* Reset page count */
+    setFilterInfo(filterInfo => {return {...filterInfo, pageNum: 0}});
 
-  function handleSearch () {
-    /* send to Gina */
-
-    /* make UserList the list she sends - use useEffect */
-
+    /* make UserList the list she sends - use useEffect next time */
+    const newUsers = await GetUsers(filterInfo);
+    setUserList(newUsers);
   }
 
   return (
     <div id="SearchBar">
-      <input type='text' onChange={e => setUsername(e.target.value)} value={username} 
+      <input type='text' onChange={e => setFilterInfo(filterInfo => {return {...filterInfo, name: e.target.value}})} value={filterInfo.name} 
       className='SearchTextBox' placeholder='🔍 Search by name' onKeyDown={e => { if
         (e.key === "Enter") handleSearch(); 
       }} />
@@ -96,9 +81,22 @@ function Search () {
   
 }
 
-function UpdateUser({ setUpdate, user , setUser , setOpen, setErrorMsg, errorMsg, userIndex}) {
-  function DeleteUser() {
-    /* reload the users in the table to exclude the users with delete which is given by Gina*/
+function UpdateUser({ setUpdate, user , setUser , setOpen, setErrorMsg, errorMsg, userIndex, filterInfo, setUserList}) {
+  async function DeleteUser() {
+    /* Delete user */
+    async function SendDelete() {
+      try {
+        const {data} = await axios.delete(URL + `/${user.id}`)
+      } catch(error) {
+        console.log(error);
+      }
+    }
+
+    /* Get Users again */
+    const newUsers = await GetUsers(filterInfo);
+    setUserList(newUsers);
+    
+    
     setUpdate(false);
   }
 
@@ -163,7 +161,7 @@ function UpdateUser({ setUpdate, user , setUser , setOpen, setErrorMsg, errorMsg
         {/** Get confirmation from Gina - if accepted then proceed, if not then redo */}
 
         <div className='subButtonContainer'>
-          <button className='submitButton' onClick={() => ValidateUser(user, setOpen, setErrorMsg, "update", setUpdate, userIndex)}>  
+          <button className='submitButton' onClick={() => ValidateUser(user, setOpen, setErrorMsg, "update", setUpdate, userIndex, filterInfo, setUserList)}>  
             submit changes
           </button>
 
@@ -175,42 +173,8 @@ function UpdateUser({ setUpdate, user , setUser , setOpen, setErrorMsg, errorMsg
   )
 }
 
-function ValidateUser(user, setOpen, setErrorMsg, mode, setUpdate, userIndex) {
-    const name = user.name;
-    const email = user.email;
-    const status = user.status;
-    let userState = true;
 
-
-    /* FE: make sure there is a name, email, and status given */
-    if (name === "" || email === "" || status === "") {
-      userState = false;
-    }
-
-    /* Send to BE */
-
-
-    /* Confirmation from Gina, then add user to the UserList*/
-    if (userState) {
-      if (mode === "add"){
-        UserList.push(user);
-        setOpen(false);
-      }
-      if (mode === "update") {
-        /* add in changing the user in the list */
-        UserList[userIndex].name = user.name;
-        UserList[userIndex].email = user.email;
-        UserList[userIndex].status = user.status;
-        UserList[userIndex].role = user.role;
-        setUpdate(false);
-      }
-
-    }  else {
-      setErrorMsg("Please fill in all required fields (*)");
-    }
-}
-
-function AddUser({ setOpen , user , setUser , setErrorMsg, errorMsg, setUpdate, userIndex }) {
+function AddUser({ setOpen , user , setUser , setErrorMsg, errorMsg, setUpdate, userIndex, filterInfo, setUserList }) {
 
   return (
     <div className='AddUserContainer'>
@@ -266,7 +230,7 @@ function AddUser({ setOpen , user , setUser , setErrorMsg, errorMsg, setUpdate, 
 
         {/** Get confirmation from Gina - if accepted then proceed, if not then redo */}
         <div className='subButtonContainer'>
-          <button className='submitButton' onClick={() => ValidateUser(user, setOpen, setErrorMsg, "add", setUpdate, userIndex)}>  
+          <button className='submitButton' onClick={() => ValidateUser(user, setOpen, setErrorMsg, "add", setUpdate, userIndex, filterInfo, setUserList)}>  
             submit
           </button>
           <p id='ErrorMsg'> {errorMsg} </p>
@@ -303,7 +267,7 @@ function ButtonBar({ setOpen, setUser, setErrorMsg, setFilter}) {
     /* Potentially a counter here */
 
     <div className="buttonContainer">
-      <button id="Filter" onClick={() => setFilter(true)}>🕸️ Filter 🕸️</button>
+      <button id="Filter" onClick={() => setFilter(filter => !filter)}>🕸️ Filter 🕸️</button>
       <button id="addUser" onClick={() => handleOpen()}>Add user</button>
     </div>    
   )

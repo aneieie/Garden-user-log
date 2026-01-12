@@ -1,6 +1,4 @@
-import { UserList } from "./App";
-
-export default function Table( { setUpdate , setUser, setErrorMsg, setUserIndex }) {
+export default function Table( { setUpdate , setUser, setErrorMsg, setUserIndex, userList }) {
 
   function EnterUpdate(user, index) {
     /* I would parse in the id and find the user for the id within the list */
@@ -14,12 +12,12 @@ export default function Table( { setUpdate , setUser, setErrorMsg, setUserIndex 
   } 
 
   function IndexByID(id) {
-    const listLength = UserList.length;
+    const listLength = userList.length;
 
     /* Can use user.find instead of this function */     
       
     for (let i = 0; i < listLength; i++) {
-      if (id === UserList[i].id) {
+      if (id === userList[i].id) {
         return i;
       }
     }
@@ -54,7 +52,7 @@ export default function Table( { setUpdate , setUser, setErrorMsg, setUserIndex 
           </div>
       </div>
 
-    {UserList.map(user => (
+    {userList.map(user => (
       <div className="UserRow">
         <div className='cell Update' onClick={ () => EnterUpdate(user, IndexByID(user.id)) }>
           ✏️
