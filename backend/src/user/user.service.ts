@@ -13,8 +13,9 @@ const ERROR_MESSAGE = {
   userNotFound: "User with this ID not found",
   invalidName: "Name is not between 2 and 100 characters",
   invalidDates: "Dates are not valid",
-  idNotProvided: "Please provide the ID for the user"
-
+  idNotProvided: "Please provide the ID for the user",
+  somethingWentWrong: "Something went wrong. Please try again",
+  invalidSyntax: "Some of the syntax is in the incorrect form, please try again"
 
 }
 
@@ -27,7 +28,9 @@ const ERROR_CODE = {
   userNotFound: 404,
   invalidName: 400,
   invalidDates: 400,
-  idNotProvided: 400
+  idNotProvided: 400,
+  somethingWentWrong: 400,
+  invalidSyntax: 400
 }
 
 @Injectable()
@@ -41,7 +44,7 @@ export class UserService {
 
     //check the email is in valid form 
     if (!this.validateEmail(createUserDto.email)) {
-      throw new HttpException(ERROR_MESSAGE.repeatedEmail, ERROR_CODE.repeatedEmail);
+      throw new HttpException(ERROR_MESSAGE.invalidEmail, ERROR_CODE.invalidEmail);
     }
 
     //check name is in valid form
@@ -63,7 +66,7 @@ export class UserService {
 
     const where: Prisma.UsersWhereInput = this.getWhere(filters);
 
-    return await this.databaseService.users.findMany({where});
+    return await this.filterErrors(() => this.databaseService.users.findMany({where}));
     
   }
 
@@ -99,7 +102,7 @@ export class UserService {
       throw new HttpException(ERROR_MESSAGE.idNotProvided, ERROR_CODE.idNotProvided);
     }
 
-    return await this.findUser(() => this.databaseService.users.update({
+    return await this.filterErrors(() => this.databaseService.users.update({
       where: {
         id: id
       },
@@ -119,7 +122,7 @@ export class UserService {
       deletedAt: new Date()
     }
 
-    return await this.findUser(() => this.databaseService.users.update({
+    return await this.filterErrors(() => this.databaseService.users.update({
       where: {
         id: id,
       },
@@ -129,12 +132,11 @@ export class UserService {
 
 
   async reviveUser(id: UUID) {
-
     const revive: Prisma.UsersUpdateInput = {
       deletedAt: null
     }
 
-    return await this.findUser(() => this.databaseService.users.update({
+    return await this.filterErrors(() => this.databaseService.users.update({
       where: {
         id: id,
       },
@@ -148,7 +150,7 @@ export class UserService {
    * 
    * @param fn - function that could potentially throw a Prisma.PrismaClientKnownRequestError
    */
-  private async findUser<T>(fn: () => Promise<T>): Promise<T> {
+  private async filterErrors<T>(fn: () => Promise<T>): Promise<T> {
 
     try {
       return await fn();
@@ -156,6 +158,10 @@ export class UserService {
 
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         throw new HttpException(ERROR_MESSAGE.userNotFound, ERROR_CODE.userNotFound);
+      } else if (e instanceof Prisma.PrismaClientUnknownRequestError) {
+        throw new HttpException(ERROR_MESSAGE.somethingWentWrong, ERROR_CODE.somethingWentWrong);
+      } else if (e instanceof Prisma.PrismaClientValidationError){
+        throw new HttpException(ERROR_MESSAGE.invalidSyntax, ERROR_CODE.invalidSyntax)
       } else {
         throw e; //don't want to mask the error if it's something else
       }
@@ -164,7 +170,7 @@ export class UserService {
   }
 
   private validateEmail(email: string): boolean {
-    //does this do what I think it does??
+    //using regex to verify that the email is in the correct form
     return !!String(email).toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
   }
 
