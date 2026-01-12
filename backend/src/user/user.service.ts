@@ -5,6 +5,7 @@ import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { filterUserDTO } from '../dto/requests';
 import { ERROR_CODE, ERROR_MESSAGE } from 'src/constants';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -14,8 +15,8 @@ export class UserService {
     //check the email is in valid form
     if (!this.validateEmail(createUserDto.email)) {
       throw new HttpException(
-        ERROR_MESSAGE.repeatedEmail,
-        ERROR_CODE.repeatedEmail,
+        ERROR_MESSAGE.invalidEmail,
+        ERROR_CODE.invalidEmail,
       );
     }
 
@@ -41,10 +42,22 @@ export class UserService {
   }
 
   async findAll(filters: filterUserDTO) {
+
+    let page: number = 1;
+    let limit: number = 10;
+
     const where: Prisma.UsersWhereInput = this.getWhere(filters);
+    if (filters) {
+      filters.page && (page = filters.page);
+      filters.limit && (limit = filters.limit);
+    }
 
     return await this.filterErrors(() =>
-      this.databaseService.users.findMany({ where }),
+      this.databaseService.users.findMany({ 
+        where,
+        skip: (page - 1) * limit,
+        take: limit
+       }),
     );
   }
 
@@ -62,6 +75,13 @@ export class UserService {
     return user;
   }
 
+
+  /**
+   * Updates the user to have the information provided
+   * @param id 
+   * @param updateUserDto 
+   * @returns 
+   */
   async update(id: UUID, updateUserDto: Prisma.UsersUpdateInput) {
     if (!updateUserDto.id) {
       throw new HttpException(
@@ -81,7 +101,7 @@ export class UserService {
   }
 
   /**
-   * Soft deletes the provided user - updates the
+   * Soft deletes the provided user - updates the deletedAt field to be the current date
    * @param id
    * @returns
    */
@@ -100,6 +120,11 @@ export class UserService {
     );
   }
 
+  /**
+   * "Revives a user by setting their deletedAt field to null"
+   * @param id - ID of the user
+   * @returns 
+   */
   async reviveUser(id: UUID) {
     const revive: Prisma.UsersUpdateInput = {
       deletedAt: null,
@@ -177,6 +202,12 @@ export class UserService {
       };
     }
 
+    //ensure either both provided or neither provided
+
+    if ((filters.startDate && !filters.endDate) || (!filters.startDate && filters.endDate)) {
+      throw new HttpException(ERROR_MESSAGE.invalidDates, ERROR_CODE.invalidDates);
+    }
+
     //error check that the start and end date are valid
     if (filters.startDate && filters.endDate) {
       if (filters.startDate > filters.endDate) {
@@ -194,14 +225,6 @@ export class UserService {
 
     if (filters.status) {
       where.status = filters.status;
-    }
-
-    if (filters.page) {
-      page = filters.page;
-    }
-
-    if (filters.limit) {
-      limit = filters.limit;
     }
 
     return where;
