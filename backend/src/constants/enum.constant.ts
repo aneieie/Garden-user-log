@@ -8,6 +8,8 @@ export const ERROR_MESSAGE = {
   invalidName: 'Name is not between 2 and 100 characters',
   invalidDates: 'Dates are not valid',
   idNotProvided: 'Please provide the ID for the user',
+  somethingWentWrong: 'Something happened, please try again',
+  invalidSyntax: 'Syntax is in invalid, please try again',
 };
 
 export const ERROR_CODE = {
@@ -20,4 +22,6 @@ export const ERROR_CODE = {
   invalidName: 400,
   invalidDates: 400,
   idNotProvided: 400,
+  somethingWentWrong: 400,
+  invalidSyntax: 400,
 };

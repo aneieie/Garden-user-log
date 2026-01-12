@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import type { UUID } from 'crypto';
 
-import { Prisma } from 'prisma/generated/prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { UserService } from './user.service';
 import { filterUserDTO } from '../dto/requests';
 

@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { UUID } from 'crypto';
 
-import { Prisma } from 'prisma/generated/prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { filterUserDTO } from '../dto/requests';
 import { ERROR_CODE, ERROR_MESSAGE } from 'src/constants';
@@ -43,8 +43,9 @@ export class UserService {
   async findAll(filters: filterUserDTO) {
     const where: Prisma.UsersWhereInput = this.getWhere(filters);
 
-    return await this.filterErrors(() => this.databaseService.users.findMany({where}));
-    
+    return await this.filterErrors(() =>
+      this.databaseService.users.findMany({ where }),
+    );
   }
 
   async findOne(id: UUID) {
@@ -69,12 +70,14 @@ export class UserService {
       );
     }
 
-    return await this.filterErrors(() => this.databaseService.users.update({
-      where: {
-        id: id
-      },
-      data: updateUserDto
-    }));
+    return await this.filterErrors(() =>
+      this.databaseService.users.update({
+        where: {
+          id: id,
+        },
+        data: updateUserDto,
+      }),
+    );
   }
 
   /**
@@ -87,12 +90,14 @@ export class UserService {
       deletedAt: new Date(),
     };
 
-    return await this.filterErrors(() => this.databaseService.users.update({
-      where: {
-        id: id,
-      },
-      data: softRemove,
-    }));
+    return await this.filterErrors(() =>
+      this.databaseService.users.update({
+        where: {
+          id: id,
+        },
+        data: softRemove,
+      }),
+    );
   }
 
   async reviveUser(id: UUID) {
@@ -100,14 +105,14 @@ export class UserService {
       deletedAt: null,
     };
 
-    return await this.filterErrors(() => this.databaseService.users.update({
-      where: {
-        id: id,
-      },
-      data: revive,
-    }));
-
-
+    return await this.filterErrors(() =>
+      this.databaseService.users.update({
+        where: {
+          id: id,
+        },
+        data: revive,
+      }),
+    );
   }
 
   /**
@@ -115,16 +120,24 @@ export class UserService {
    * @param fn - function that could potentially throw a Prisma.PrismaClientKnownRequestError
    */
   private async filterErrors<T>(fn: () => Promise<T>): Promise<T> {
-
     try {
       return await fn();
     } catch (e: unknown) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new HttpException(ERROR_MESSAGE.userNotFound, ERROR_CODE.userNotFound);
+        throw new HttpException(
+          ERROR_MESSAGE.userNotFound,
+          ERROR_CODE.userNotFound,
+        );
       } else if (e instanceof Prisma.PrismaClientUnknownRequestError) {
-        throw new HttpException(ERROR_MESSAGE.somethingWentWrong, ERROR_CODE.somethingWentWrong);
-      } else if (e instanceof Prisma.PrismaClientValidationError){
-        throw new HttpException(ERROR_MESSAGE.invalidSyntax, ERROR_CODE.invalidSyntax)
+        throw new HttpException(
+          ERROR_MESSAGE.somethingWentWrong,
+          ERROR_CODE.somethingWentWrong,
+        );
+      } else if (e instanceof Prisma.PrismaClientValidationError) {
+        throw new HttpException(
+          ERROR_MESSAGE.invalidSyntax,
+          ERROR_CODE.invalidSyntax,
+        );
       } else {
         throw e; //don't want to mask the error if it's something else
       }
@@ -133,7 +146,11 @@ export class UserService {
 
   private validateEmail(email: string): boolean {
     //using regex to verify that the email is in the correct form
-    return !!String(email).toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+    return !!String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      );
   }
 
   private validateName(name: string): boolean {
