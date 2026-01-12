@@ -96,3 +96,16 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+
+## Set Up the project Annie!!!! :D
+
+$ docker compose up
+$ npm install
+$ npm run prisma:generate
+$ npm run prisma:migrate:deploy
+$ npm run start
+
+The API should now be running on localhost:3000/user poooooooooooooooooo
+

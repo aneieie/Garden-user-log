@@ -42,6 +42,6 @@ export class AppService {
   }
 
   getHello(): string {
-    throw new HttpException('helloooooooooo', 404);
+    return "Hello World!";
   }
 }

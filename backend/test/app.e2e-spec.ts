@@ -22,4 +22,19 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect('Hello World!');
   });
+
+  it('add a basic user', async () => {
+
+    const user = {
+      name: "Gina",
+      email: "10ginahale@gmail.com",
+      status: "ACTIVE"
+    };
+
+    const response = request(app.getHttpServer()).post('/users/create').send(user).expect(202);
+
+    //expect(response.body).toMatchObject()
+  })
+
+
 });
