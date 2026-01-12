@@ -5,26 +5,14 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "./generated/prisma"
   moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
-
-model Users {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name String
-  email String @unique
-  role Role?
-  status Status 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now())
-  deletedAt DateTime?
-}
-
 
 enum Status {
   ACTIVE
@@ -37,4 +25,13 @@ enum Role {
   USER
 }
 
-
+model Users {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  email     String    @unique
+  role      Role?
+  status    Status
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+}
