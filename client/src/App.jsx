@@ -1,8 +1,19 @@
 import { useState } from 'react'
 import './App.css'
+import Table from './Table';
+import FlipPage from './FlipPage';
+import FilterPop from './FilterPop';
 
+export const Filter = {
+  page: 0,
+  limit: 10,
+  name: "",
+  startDate: "",
+  endDate: "",
+  status: "",
+}
 
-const UserList = [
+export const UserList = [
   {
     id: "1",
     name: "Ginarr",
@@ -41,28 +52,68 @@ function Website() {
   });
   const [errorMsg, setErrorMsg] = useState("");
   const [userIndex, setUserIndex] = useState(0);
+  const [filter, setFilter] = useState(false);
 
   return (
     <>
+      <Search />
       <h1>Garden users log</h1>
-        <ButtonBar setOpen={setOpen} setUser={setUser} setErrorMsg={setErrorMsg} />
+        <ButtonBar setOpen={setOpen} setUser={setUser} setErrorMsg={setErrorMsg} setFilter={setFilter} />
+        {filter && <FilterPop />}
         <Table setUpdate={setUpdate} setUser={setUser} setErrorMsg={setErrorMsg} setUserIndex={setUserIndex} />
         {open && <AddUser setOpen={setOpen} user={user} setUser={setUser} setErrorMsg={setErrorMsg} errorMsg={errorMsg} 
         setUpdate={setUpdate} userIndex={userIndex} />}
         {update && <UpdateUser setUpdate={setUpdate} user={user} setUser={setUser} setOpen={setOpen}
         setErrorMsg={setErrorMsg} errorMsg={errorMsg} userIndex={userIndex} />}
+        <FlipPage />
     </>
   )
 }
 
+
+
+function Search () {
+  const [username, setUsername] = useState("");
+
+
+  function handleSearch () {
+    /* send to Gina */
+
+    /* make UserList the list she sends - use useEffect */
+
+  }
+
+  return (
+    <div id="SearchBar">
+      <input type='text' onChange={e => setUsername(e.target.value)} value={username} 
+      className='SearchTextBox' placeholder='🔍 Search by name' onKeyDown={e => { if
+        (e.key === "Enter") handleSearch(); 
+      }} />
+      <hr />
+
+    </div>
+  )
+  
+}
+
 function UpdateUser({ setUpdate, user , setUser , setOpen, setErrorMsg, errorMsg, userIndex}) {
+  function DeleteUser() {
+    /* reload the users in the table to exclude the users with delete which is given by Gina*/
+    setUpdate(false);
+  }
+
   return (
     /* Reusing the form and container from AddUser */
     <div className='AddUserContainer'>
       <div className='AddUserForm'>
         {/** Exiting */}
+        
         <div className='ExitContainer'>
+          {/** Delete button */}
+          <button className='DeleteButton' onClick={() => DeleteUser()} >🗑️</button>
+
           <button className="ExitButton" onClick={() => setUpdate(false)}>x</button>
+          
         </div>               
         <h2> Update gardener! </h2>
 
@@ -115,6 +166,7 @@ function UpdateUser({ setUpdate, user , setUser , setOpen, setErrorMsg, errorMsg
           <button className='submitButton' onClick={() => ValidateUser(user, setOpen, setErrorMsg, "update", setUpdate, userIndex)}>  
             submit changes
           </button>
+
           <p id='ErrorMsg'> {errorMsg} </p>
         </div>
 
@@ -156,7 +208,7 @@ function ValidateUser(user, setOpen, setErrorMsg, mode, setUpdate, userIndex) {
     }  else {
       setErrorMsg("Please fill in all required fields (*)");
     }
-  }
+}
 
 function AddUser({ setOpen , user , setUser , setErrorMsg, errorMsg, setUpdate, userIndex }) {
 
@@ -229,7 +281,8 @@ function AddUser({ setOpen , user , setUser , setErrorMsg, errorMsg, setUpdate, 
 
 
 
-function ButtonBar({ setOpen, setUser, setErrorMsg}) {
+function ButtonBar({ setOpen, setUser, setErrorMsg, setFilter}) {
+
   function handleOpen() {
     setErrorMsg("");
     setUser({
@@ -244,102 +297,20 @@ function ButtonBar({ setOpen, setUser, setErrorMsg}) {
     });
     setOpen(true);
   }
+
   return (
 
     /* Potentially a counter here */
 
     <div className="buttonContainer">
+      <button id="Filter" onClick={() => setFilter(true)}>🕸️ Filter 🕸️</button>
       <button id="addUser" onClick={() => handleOpen()}>Add user</button>
     </div>    
   )
 }
 
 
-function Table( { setUpdate , setUser, setErrorMsg, setUserIndex }) {
 
-  function EnterUpdate(user, index) {
-    /* I would parse in the id and find the user for the id within the list */
-    // const user = UserList.find((user) => {
-    //   return user.id === id
-    // });
-    setErrorMsg("");
-    setUpdate(true);
-    setUser(user);
-    setUserIndex(index);
-  } 
-
-  function IndexByID(id) {
-    const listLength = UserList.length;
-
-    /* Can use user.find instead of this function */     
-      
-    for (let i = 0; i < listLength; i++) {
-      if (id === UserList[i].id) {
-        return i;
-      }
-    }
-  }
-
-  return (
-    <div className="UserTable">
-      <div className="HeaderRow">
-          <div className='header'>
-            Edit
-          </div>
-          <div className="header">
-            ID
-          </div>
-          <div className="header">
-            Name
-          </div>
-          <div className="header">
-            Email
-          </div>
-          <div className="header">
-            Status 
-          </div>
-          <div className="header">
-            Role
-          </div>
-          <div className="header">
-            Created At
-          </div>
-          <div className="header">
-            Updated At
-          </div>
-      </div>
-
-    {UserList.map(user => (
-      <div className="UserRow">
-        <div className='cell Update' onClick={ () => EnterUpdate(user, IndexByID(user.id)) }>
-          ✏️
-        </div>
-        <div className="cell">
-          {user.id}            
-        </div>
-        <div className="cell">
-          {user.name}            
-        </div>
-        <div className="cell">
-          {user.email}            
-        </div>
-        <div className="cell">
-          {user.status}            
-        </div>
-        <div className="cell">
-          {user.role}            
-        </div>
-        <div className="cell">
-          {user.createdAt}            
-        </div>
-        <div className="cell">
-          {user.updatedAt}            
-        </div>
-      </div>
-    ))}
-    </div>
-  )
-}
 
 export default Website
 

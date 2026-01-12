@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -8,17 +10,18 @@
 .HeaderRow {
   display: grid;
   grid-template-rows: 1fr;
-  grid-template-columns: 6ch 11ch 27ch 27ch 13ch 26ch 13ch 13ch; 
+  grid-template-columns: 6ch 30ch 30ch 13ch 1fr 13ch 13ch; 
   grid-gap: 0.5em;
   padding-top: 0.5em;
   text-align: center;
-
+  font-weight: 500;
 }
 
 .header {
   color: antiquewhite;
   background-color: #974315db;
   text-align: center;
+  border-radius: 3px;
 }
 
 .HeaderRow * {
@@ -30,10 +33,11 @@
 .UserRow {
   display: grid;
   grid-template-rows: 1fr;
-  grid-template-columns: 6ch 11ch 27ch 27ch 13ch 26ch 13ch 13ch; 
+  grid-template-columns: 6ch 30ch 30ch 13ch 1fr 13ch 13ch; 
   grid-gap: 0.5em;
   padding-top: 0.5em;
   text-align: center;
+  font-weight: 500;
 }
 
 .cell {
@@ -41,6 +45,7 @@
   color: #974315db;
   text-align: center;
   word-wrap: break-word;
+  border-radius: 3px;
 }
 
 .UserRow * {
@@ -58,7 +63,12 @@
   display: flex;
   flex-direction: row;
   justify-content: end;
-  width: 101%;
+  /* width: 104%; */
+}
+
+#Filter {
+  margin-right: auto;
+  border-color: #974315db;
 }
 
 
@@ -85,6 +95,7 @@
   color: #974315db;
   font-weight: 500;
   font-size: 1.1rem;
+  z-index: 10;
 
   padding: 1.5em 1.5em;
 }
@@ -159,5 +170,124 @@
 .Update:hover {
   cursor: pointer;
 }
+
+/* Deleting user */
+
+
+.DeleteButton {
+  background-color: rgb(255, 252, 246);
+  margin-right: auto;
+}
+
+.DeleteButton:hover {
+  border-color: rgb(255, 252, 246);
+  
+}
+
+/* Flipping page */
+
+.PageFlipContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  font-size: 1.5em;
+}
+
+.PageFlipContainer *{
+  margin: 10px;
+}
+
+
+#NextPageIcon {
+  transform: scaleX(-1);
+  z-index: 0;
+}
+
+#PrevPage {
+  color: #ffd558;
+  margin-right: 80px;
+  margin-left: 0px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+#NextPage {
+  color: #ffd558;
+  font-size: 0.9em;
+  margin-right: 0px;
+  font-weight: 500;
+  
+}
+
+#PrevPage:hover {
+  cursor: pointer;
+}
+
+#PrevPageIcon:hover {
+  cursor: pointer;
+}
+
+#NextPage:hover {
+  cursor: pointer;
+}
+
+#NextPageIcon:hover {
+  cursor: pointer;
+}
+
+#Filter {
+  color: #974315db;
+  border-width: 2px;
+}
+
+#Filter:hover {
+  border-color: #974315db;
+  border-width: 2.5px;
+}
+
+.withFilter {
+  background-color: antiquewhite;
+  border-radius: 8px;
+  height: 300px;
+  width: 100%;
+  margin-top: 7px;
+  color: #974315db;
+  font-weight: 500;
+  padding: 10px 20px;
+}
+
+.dateLabel {
+  margin-right: 10px;
+}
+
+.DateContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.clickedFilt {
+  background-color: antiquewhite;
+  border-color: #974315db;
+  border-width: 2px;
+  border-radius: 8px;
+}
+
+
+
+/* Search bar */
+#SearchBar {
+  color: #974315db;
+}
+
+.SearchTextBox{
+  color:#974315db;
+  background-color: antiquewhite;
+  padding: 5px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+
 
 
