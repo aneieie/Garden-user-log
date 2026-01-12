@@ -12,7 +12,8 @@ const ERROR_MESSAGE = {
   invalidDate: "Date is not in a valid format",
   userNotFound: "User with this ID not found",
   invalidName: "Name is not between 2 and 100 characters",
-  invalidDates: 
+  invalidDates: "Dates are not valid",
+  idNotProvided: "Please provide the ID for the user"
 
 
 }
@@ -24,7 +25,9 @@ const ERROR_CODE = {
   invalidRole: 400,
   invalidDate: 400,
   userNotFound: 404,
-  invalidName: 400
+  invalidName: 400,
+  invalidDates: 400,
+  idNotProvided: 400
 }
 
 @Injectable()
@@ -57,26 +60,11 @@ export class UserService {
   }
 
   async findAll(filters: filterUserDTO) {
-    const where =  { deletedAt: null };
 
-    if (!filters) {
-      return where;
-    }
+    const where: Prisma.UsersWhereInput = this.getWhere(filters);
 
-    // if ((!filters.startDate && filters.endDate) || (filters.startDate && !filters.endDate)) {
-    //   throw new HttpException(dateErrorMessage, 400);
-    // }
-
-    // if (filters.name) {
-    //   where.name: {
-
-    //   }
-    // }
-
-
-    return this.databaseService.users.findMany({
-      where
-    });
+    return await this.databaseService.users.findMany({where});
+    
   }
 
 
@@ -107,9 +95,13 @@ export class UserService {
 
   async update(id: UUID, updateUserDto: Prisma.UsersUpdateInput) {
 
+    if (!updateUserDto.id) {
+      throw new HttpException(ERROR_MESSAGE.idNotProvided, ERROR_CODE.idNotProvided);
+    }
+
     return await this.findUser(() => this.databaseService.users.update({
       where: {
-        id,
+        id: id
       },
       data: updateUserDto
     }));
@@ -178,5 +170,55 @@ export class UserService {
 
   private validateName(name: string): boolean {
     return !(name.length < 2 || name.length > 100);
+  }
+
+  //gets the appropriate where clause based off the filters provided
+  private getWhere(filters: filterUserDTO): Prisma.UsersWhereInput {
+
+    let page: number = 1;
+    let limit: number = 10;
+
+    const where: Prisma.UsersWhereInput = { 
+      deletedAt: null,
+    };
+
+
+    if (!filters) {
+      return where;
+    }
+
+    if (filters.name) {
+      where.name = {
+        contains: filters.name,
+        mode: 'insensitive',
+      };
+    }
+
+    //error check that the start and end date are valid 
+    if (filters.startDate && filters.endDate) {
+      if (filters.startDate > filters.endDate) {
+        throw new HttpException(ERROR_MESSAGE.invalidDate, ERROR_CODE.invalidDate);
+      }
+
+      where.createdAt =  {
+        gte: filters.startDate,
+        lte: filters.endDate,
+      };
+    }
+
+    if (filters.status) {
+      where.status = filters.status;
+    }
+
+    if (filters.page) {
+      page = filters.page;
+    }
+
+    if (filters.limit) {
+      limit = filters.limit;
+    }
+
+    return where;
+
   }
 }

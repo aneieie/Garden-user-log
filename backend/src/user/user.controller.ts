@@ -10,12 +10,12 @@ const dateErrorMessage = "Either both a start and end date must be provided or n
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post("/create")
   async create(@Body() createUserDto: Prisma.UsersCreateInput) {
     return await this.userService.create(createUserDto);
   }
 
-  @Get()
+  @Post()
   async findAll(@Body() filters: filterUserDTO) {
 
     // if ((!filters.startDate && filters.endDate) || (filters.startDate && !filters.endDate)) {
