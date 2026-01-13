@@ -28,16 +28,34 @@ export class UserService {
       );
     }
 
+
+    //check that the role is valid
+    if (createUserDto.role) {
+      if (!this.validateRole(createUserDto.role)) {
+        throw new HttpException(
+          ERROR_MESSAGE.invalidRole,
+          ERROR_CODE.invalidRole
+        )
+
+      }
+    }
+    
+
     //see if the email already exists in the database
     try {
       return await this.databaseService.users.create({ data: createUserDto });
-    } catch (e: unknown) {
+    } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
+
+
         throw new HttpException(
-          ERROR_MESSAGE.repeatedEmail,
+          e.message,
           ERROR_CODE.repeatedEmail,
         );
+      } else {
+        throw e;
       }
+      
     }
   }
 
@@ -180,6 +198,13 @@ export class UserService {
 
   private validateName(name: string): boolean {
     return !(name.length < 2 || name.length > 100);
+  }
+
+  private validateRole(role: string): boolean {
+    if (role === "ADMIN" || role === "USER") {
+      return true;
+    }
+    return false;
   }
 
   //gets the appropriate where clause based off the filters provided
