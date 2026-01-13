@@ -11,10 +11,22 @@ export default async function ValidateUser(user, setOpen, setErrorMsg, mode, set
     let userState = true;
 
     async function SendAddedUser() {
-      /* send added user */
+      /* Construct added user */
+      const newUser = {};
+
+      if (user.role != "") {
+        newUser.role = user.role;
+      }
+      
+      newUser.name = user.name;
+      newUser.email = user.email;
+      newUser.status = user.status;
+
+
+      /* Send added user */
       try {
         const {data} = await axios.post(URL + '/create', {
-          data: user,
+          data: newUser,
         });
       } catch (error) {
         /* Check this */
@@ -24,9 +36,21 @@ export default async function ValidateUser(user, setOpen, setErrorMsg, mode, set
     }
 
     async function SendUpdatedUser() {
+
+      const updatedUser = {};
+
+      /* Constructing updated user */
+      if (user.role != "") {
+        updatedUser.role = user.role;
+      }
+      updatedUser.id = user.id;
+      updatedUser.name = user.name;
+      updatedUser.email = user.email;
+      updatedUser.status = user.status;
+
         try{
             const {data} = await axios.post(URL + `/${user.id}`, {
-                data: user,
+                data: updatedUser,
             });
         } catch (error) {
             /* Check this */
